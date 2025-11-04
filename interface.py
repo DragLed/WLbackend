@@ -78,6 +78,12 @@ class DataBaseInterface:
     
     @staticmethod
     def create_user(db: Session, username:str, email: str, hashed_password:str):
+        user = db.query(User).filter(User.username == username).first()
+        if user:
+            raise HTTPException(status_code=401, detail="Логин уже используеться")
+        user = db.query(User).filter(User.email == email).first()
+        if user:
+            raise HTTPException(status_code=401, detail="Почта уже используеться")
         user = User(
         username=username,
         email=email,
@@ -96,22 +102,12 @@ class DataBaseInterface:
         return result
 
 
-
     @staticmethod
-    def get_user_data(db: Session, userId: str):
-        result = db.get(User, userId)
-        db.close()
-        return result
-
-
-    @staticmethod
-    def get_user_by_id(id:str):
-        with engine.connect() as conn:
-            result = conn.execute(
-                text("SELECT * FROM users WHERE id = :id"),
-                {"id": id}
-                ).fetchone()
-            return dict(result._mapping) if result else None
+    def get_user_by_id(db: Session,id:str):
+        user = db.query(User).filter(User.id == id).first()
+        if user:
+            return user
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
 
     @staticmethod
     def verify_password( username:str, password: str ,db: Session):

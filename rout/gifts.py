@@ -20,23 +20,26 @@ def get_db():
 rout = APIRouter(prefix="/gifts", tags=["Подарок"])
 
 
-@rout.post("/")
-def create_gift(gift: GiftView, db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
-    """
-    Добавление подарка
-    """
-    user_id = token.sub
-    DataBaseInterface.create_gift(db, gift.name, gift.description, gift.price, gift.photo, user_id)
-    return "Подарок дабавлен"
 
 
-@rout.get("/jwt/")
+@rout.get("/")
 def get_all_gifts(db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
     user_id = token.sub
     gifts = DataBaseInterface.get_all_gifts(db, user_id) 
     if len(gifts) == 0:
         raise HTTPException(status_code=404, detail="Подарки пользователя не найдены")
     return gifts
+
+
+@rout.post("/")
+def create_gift2(gift: GiftView, db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
+    """
+    Добавление подарка
+    """
+    user_id = token.sub
+    DataBaseInterface.create_gift(db, gift.name, gift.description, gift.price, gift.photo, user_id)
+    return {"message": f"Подарок добавлен"}
+
 
 
 @rout.delete("/{giftId}", dependencies=[Depends(securuty.access_token_required)])
@@ -64,6 +67,4 @@ def edit_gift_by_id(giftId: int ,Viewgift: UpdateGift, db: Session = Depends(get
     else:
         raise HTTPException(status_code=404, detail="Подарок не найден")
     
-
-
 

@@ -29,7 +29,7 @@ def get_all_users(db: Session = Depends(get_db)):
 @rout.get("/me", dependencies=[Depends(securuty.access_token_required)])
 def get_me(db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
     userId = token.sub
-    result = DataBaseInterface.get_user_data(db,userId)
+    result = DataBaseInterface.get_user_by_id(db,userId)
     if result:
         return result
     raise HTTPException(status_code=404, detail="Пользователь не найден")
@@ -37,7 +37,7 @@ def get_me(db: Session = Depends(get_db), token: dict = Depends(securuty.access_
 
 @rout.get("/{userId}")
 def get_user(userId:str, db: Session = Depends(get_db)):
-    result = DataBaseInterface.get_user_data(db,userId)
+    result = DataBaseInterface.get_user_by_id(db,userId)
     if result:
         return result
     raise HTTPException(status_code=404, detail="Пользователь не найден")
