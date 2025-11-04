@@ -50,7 +50,6 @@ class GiftView(BaseModel):
     description: str | None
     price: int
     photo: str | None
-    user_id: int
 
 class UpdateGift(BaseModel):
     name: str

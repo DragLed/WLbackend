@@ -17,11 +17,13 @@ config.JWT_TOKEN_LOCATION = ["cookies"]
 
 securuty = AuthX(config=config)
 
-# def hash_password(password: str) -> str:
-#     return pwd_context.hash(password)
+def hash_password(password: str) -> str:
+    password = password[:72]
+    return pwd_context.hash(password)
 
-# def verify_password(password: str, hashed_password: str) -> bool:
-#     return pwd_context.verify(password, hashed_password)
+def verify_password(password: str, hashed_password: str) -> bool:
+    password = password[:72]
+    return pwd_context.verify(password, hashed_password)
 
 
 
@@ -79,7 +81,7 @@ class DataBaseInterface:
         user = User(
         username=username,
         email=email,
-        hashed_password=hashed_password
+        hashed_password=hash_password(hashed_password)
         )
         db.add(user)
         db.commit()
@@ -112,23 +114,12 @@ class DataBaseInterface:
             return dict(result._mapping) if result else None
 
     @staticmethod
-    def verify_password(login_or_email:str, password: str):
-        with engine.connect() as conn:
-            result = conn.execute(
-                text("SELECT * FROM users WHERE login = :v"),
-                {"v": login_or_email}
-            ).fetchone()
-            if not result:
-                result = conn.execute(
-                text("SELECT * FROM users WHERE email = :v"),
-                {"v": login_or_email}
-            ).fetchone()
-            if not result:
-                raise HTTPException(status_code=401, detail="Неверный логин/почта или пароль")
-            user  = dict(result._mapping)
-            if password == user["hashed_password"]:
-                token = securuty.create_access_token(uid=str(user["id"]))
-                return {"access_token": token}
+    def verify_password( username:str, password: str ,db: Session):
+        user = db.query(User).filter(User.username == username).first()
+        if not user:   
             raise HTTPException(status_code=401, detail="Неверный логин/почта или пароль")
-
-
+        if verify_password(password, user.hashed_password):
+            token = securuty.create_access_token(uid=str(user.id))
+            return {"access_token": token}
+        raise HTTPException(status_code=401, detail="Неверный логин/почта или пароль")
+        
