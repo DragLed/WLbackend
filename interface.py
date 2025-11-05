@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from models import Gift, User
 
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 
 config = AuthXConfig()
