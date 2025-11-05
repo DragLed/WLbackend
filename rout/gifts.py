@@ -32,7 +32,7 @@ def get_all_gifts(db: Session = Depends(get_db), token: dict = Depends(securuty.
 
 
 @rout.post("/")
-def create_gift2(gift: GiftView, db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
+def create_gift(gift: GiftView, db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
     """
     Добавление подарка
     """
@@ -67,4 +67,7 @@ def edit_gift_by_id(giftId: int ,Viewgift: UpdateGift, db: Session = Depends(get
     else:
         raise HTTPException(status_code=404, detail="Подарок не найден")
     
+@rout.post("/lol")
+def test(token: dict = Depends(securuty.access_token_required)):
+    return token
 
