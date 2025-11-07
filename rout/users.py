@@ -24,7 +24,13 @@ def create_user(user: UserView, db: Session = Depends(get_db)):
 @rout.get("/")
 def get_all_users(db: Session = Depends(get_db)):
     result = DataBaseInterface.get_all_users(db)
-    return result
+    if len(result) > 0:
+        return result
+    raise HTTPException(status_code=404, detail="Пользователи не найдены")
+
+
+
+
 
 @rout.get("/me", dependencies=[Depends(securuty.access_token_required)])
 def get_me(db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
