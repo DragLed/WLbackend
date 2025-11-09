@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # WLbackend — Backend для Wishlist App
 
 ## 🚀 О проекте
