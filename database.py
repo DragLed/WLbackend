@@ -1,7 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+import json
 
-DATABASE_URL = "postgresql+psycopg2://dragled:050109Sofi)@212.67.13.33:5432/fastapi_db"
 
-engine = create_engine(DATABASE_URL)
+credentials_txt = open("credentials.json", "r")
+
+credentials = json.loads(credentials_txt.read())
+
+engine = create_engine(credentials["db_connections"])
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
