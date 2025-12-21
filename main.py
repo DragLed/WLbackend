@@ -22,7 +22,7 @@ app = FastAPI(
     terms_of_service="http://example.com/terms/",
     contact={
         "name": "DragLed",
-        "url": "http://t.me/DragLed1",
+        "url": "http://t.me/DragLed",
         "email": "koren_mira.10@bk.ru",
     },
 )
