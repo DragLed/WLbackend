@@ -23,7 +23,10 @@ rout = APIRouter(prefix="/gifts", tags=["Подарок"])
 
 
 @rout.get("/")
-def get_all_gifts(db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
+def get_all_my_gifts(db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
+    """
+    Получение всех подарков пользователя
+    """
     user_id = token.sub
     gifts = DataBaseInterface.get_all_gifts(db, user_id) 
     if len(gifts) == 0:
@@ -43,14 +46,17 @@ def create_gift(gift: GiftView, db: Session = Depends(get_db), token: dict = Dep
 
 
 @rout.delete("/{giftId}", dependencies=[Depends(securuty.access_token_required)])
-def remove_gift(giftId: int, db: Session = Depends(get_db)):
-    respone = DataBaseInterface.delete_gift(db,giftId)
-    if respone: 
-        return respone
-    raise HTTPException(status_code=404, detail="Подарок не найден")
+def remove_gift(giftId: int, db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
+    user_id = token.sub
+    gift = DataBaseInterface.get_gift_by_id(db,giftId)
+    if int(gift.userId) == int(user_id):
+        respone = DataBaseInterface.delete_gift(db,giftId)
+        if respone: 
+            return respone
+        raise HTTPException(status_code=404, detail="Подарок не найден")
+    raise HTTPException(status_code=403, detail="Отказано в доступе")
 
-
-@rout.get("/{giftId}", dependencies=[Depends(securuty.access_token_required)])
+@rout.get("/{giftId}")
 def get_gift_by_id(giftId: int, db: Session = Depends(get_db)):
     gift = DataBaseInterface.get_gift_by_id(db,giftId)
     if gift:
@@ -59,14 +65,17 @@ def get_gift_by_id(giftId: int, db: Session = Depends(get_db)):
 
 
 @rout.put("/{giftId}", dependencies=[Depends(securuty.access_token_required)])
-def edit_gift_by_id(giftId: int ,Viewgift: UpdateGift, db: Session = Depends(get_db)):
+def edit_gift_by_id(giftId: int ,Viewgift: UpdateGift, db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
+    user_id = token.sub
     gift = DataBaseInterface.get_gift_by_id(db,giftId)
-    if gift:
-        DataBaseInterface.edit_gift_by_id(db, giftId, Viewgift.name, Viewgift.description, Viewgift.price, Viewgift.photo)
-        return {"message": f"Подарок с id: {giftId} обновлён"}
-    else:
-        raise HTTPException(status_code=404, detail="Подарок не найден")
-    
+    if int(gift.userId) == int(user_id):
+        if gift:
+            DataBaseInterface.edit_gift_by_id(db, giftId, Viewgift.name, Viewgift.description, Viewgift.price, Viewgift.photo)
+            return {"message": f"Подарок с id: {giftId} обновлён"}
+        else:
+            raise HTTPException(status_code=404, detail="Подарок не найден")
+    raise HTTPException(status_code=403, detail="Отказано в доступе")
+
 @rout.post("/lol")
 def test(token: dict = Depends(securuty.access_token_required)):
     return token
