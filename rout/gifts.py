@@ -65,7 +65,7 @@ def get_gift_by_id(giftId: int, db: Session = Depends(get_db)):
 
 
 @rout.put("/{giftId}", dependencies=[Depends(securuty.access_token_required)])
-def edit_gift_by_id(giftId: int ,Viewgift: UpdateGift, db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
+def edit_gift(giftId: int ,Viewgift: UpdateGift, db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
     user_id = token.sub
     gift = DataBaseInterface.get_gift_by_id(db,giftId)
     if int(gift.userId) == int(user_id):
