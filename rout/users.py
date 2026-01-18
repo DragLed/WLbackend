@@ -65,3 +65,7 @@ def verify_password(user: UserLogin, response: Response, db: Session = Depends(g
         return {"message": token}
     raise HTTPException(status_code=404, detail="Пользователь не найден")
 
+@rout.post("/logout")
+def logout(response: Response):
+    response.delete_cookie(key=config.JWT_ACCESS_COOKIE_NAME)
+    return {"message": "Вы вышли из системы"}

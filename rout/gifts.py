@@ -76,7 +76,14 @@ def edit_gift(giftId: int ,Viewgift: UpdateGift, db: Session = Depends(get_db), 
             raise HTTPException(status_code=404, detail="Подарок не найден")
     raise HTTPException(status_code=403, detail="Отказано в доступе")
 
-@rout.post("/lol")
-def test(token: dict = Depends(securuty.access_token_required)):
-    return token
+# @rout.post("/lol")
+# def test(token: dict = Depends(securuty.access_token_required)):
+#     return token
 
+
+@rout.get("/user/{userID}")
+def get_all_gifts_by_user_id(userID: int, db: Session = Depends(get_db)):
+    gifts = DataBaseInterface.get_all_gifts(db, userID) 
+    if len(gifts) == 0:
+        raise HTTPException(status_code=404, detail="Подарки пользователя не найдены")
+    return gifts
