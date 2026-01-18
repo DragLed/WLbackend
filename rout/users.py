@@ -17,12 +17,18 @@ rout = APIRouter(prefix="/users", tags=["Пользователь"])
 
 @rout.post("/")
 def create_user(user: UserView, db: Session = Depends(get_db)):
+    """
+    Создание пользователя
+    """
     DataBaseInterface.create_user(db, user.username, user.email, user.password)
     return {"login": user.username,"email": user.email, "message": "Пользователь создан"}
 
 
 @rout.get("/")
 def get_all_users(db: Session = Depends(get_db)):
+    """
+    Получение всех пользователей
+    """
     result = DataBaseInterface.get_all_users(db)
     if len(result) > 0:
         return result
@@ -34,6 +40,9 @@ def get_all_users(db: Session = Depends(get_db)):
 
 @rout.get("/me", dependencies=[Depends(securuty.access_token_required)])
 def get_me(db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
+    """
+    Получение информации о текущем пользователе по JWT токену
+    """
     userId = token.sub
     result = DataBaseInterface.get_user_by_id(db,userId)
     if result:
@@ -43,6 +52,9 @@ def get_me(db: Session = Depends(get_db), token: dict = Depends(securuty.access_
 
 @rout.get("/{userId}")
 def get_user(userId:str, db: Session = Depends(get_db)):
+    """
+    Получение информации о пользователе по ID
+    """
     result = DataBaseInterface.get_user_by_id(db,userId)
     if result:
         return result
@@ -53,6 +65,9 @@ def get_user(userId:str, db: Session = Depends(get_db)):
 
 @rout.post("/verify_password")
 def verify_password(user: UserLogin, response: Response, db: Session = Depends(get_db)):
+    """
+    Проверка логина и пароля пользователя и создание JWT токена
+    """
     token = DataBaseInterface.verify_password(user.username, user.password,db)["access_token"]
     if token:
         response.set_cookie(
@@ -67,5 +82,8 @@ def verify_password(user: UserLogin, response: Response, db: Session = Depends(g
 
 @rout.post("/logout")
 def logout(response: Response):
+    """
+    Выход пользователя и удаление JWT токена из cookies
+    """
     response.delete_cookie(key=config.JWT_ACCESS_COOKIE_NAME)
     return {"message": "Вы вышли из системы"}

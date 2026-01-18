@@ -28,9 +28,19 @@ def get_all_my_gifts(db: Session = Depends(get_db), token: dict = Depends(securu
     Получение всех подарков пользователя
     """
     user_id = token.sub
-    gifts = DataBaseInterface.get_all_gifts(db, user_id) 
+    gifts = DataBaseInterface.get_all_gifts_user(db, user_id) 
     if len(gifts) == 0:
         raise HTTPException(status_code=404, detail="Подарки пользователя не найдены")
+    return gifts
+
+@rout.get("/all/")
+def get_all_gifts(db: Session = Depends(get_db)):
+    """
+    Получение всех подарков
+    """
+    gifts = DataBaseInterface.get_all_gifts(db) 
+    if len(gifts) == 0:
+        raise HTTPException(status_code=404, detail="Подарки не найдены")
     return gifts
 
 
@@ -47,8 +57,13 @@ def create_gift(gift: GiftView, db: Session = Depends(get_db), token: dict = Dep
 
 @rout.delete("/{giftId}", dependencies=[Depends(securuty.access_token_required)])
 def remove_gift(giftId: int, db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
+    """
+    Удаление подарка по ID
+    """
     user_id = token.sub
     gift = DataBaseInterface.get_gift_by_id(db,giftId)
+    if not gift:
+        raise HTTPException(status_code=404, detail="Подарок не найден")
     if int(gift.userId) == int(user_id):
         respone = DataBaseInterface.delete_gift(db,giftId)
         if respone: 
@@ -58,6 +73,9 @@ def remove_gift(giftId: int, db: Session = Depends(get_db), token: dict = Depend
 
 @rout.get("/{giftId}")
 def get_gift_by_id(giftId: int, db: Session = Depends(get_db)):
+    """
+    Получение подарка по ID
+    """
     gift = DataBaseInterface.get_gift_by_id(db,giftId)
     if gift:
         return gift
@@ -66,6 +84,9 @@ def get_gift_by_id(giftId: int, db: Session = Depends(get_db)):
 
 @rout.put("/{giftId}", dependencies=[Depends(securuty.access_token_required)])
 def edit_gift(giftId: int ,Viewgift: UpdateGift, db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
+    """
+    Редактирование подарка по ID
+    """
     user_id = token.sub
     gift = DataBaseInterface.get_gift_by_id(db,giftId)
     if int(gift.userId) == int(user_id):
@@ -83,6 +104,9 @@ def edit_gift(giftId: int ,Viewgift: UpdateGift, db: Session = Depends(get_db), 
 
 @rout.get("/user/{userID}")
 def get_all_gifts_by_user_id(userID: int, db: Session = Depends(get_db)):
+    """
+    Получение всех подарков пользователя по ID пользователя
+    """
     gifts = DataBaseInterface.get_all_gifts(db, userID) 
     if len(gifts) == 0:
         raise HTTPException(status_code=404, detail="Подарки пользователя не найдены")

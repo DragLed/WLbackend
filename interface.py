@@ -49,8 +49,13 @@ class DataBaseInterface:
 
 
     @staticmethod
-    def get_all_gifts(db: Session, id):
+    def get_all_gifts_user(db: Session, id):
         result = db.query(Gift).filter(Gift.userId == id).all()
+        return result
+    
+    @staticmethod
+    def get_all_gifts(db: Session):
+        result = db.query(Gift).all()
         return result
     
     @staticmethod
