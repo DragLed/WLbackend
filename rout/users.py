@@ -80,7 +80,7 @@ def verify_password(user: UserLogin, response: Response, db: Session = Depends(g
         return {"message": token}
     raise HTTPException(status_code=404, detail="Пользователь не найден")
 
-@rout.post("/logout")
+@rout.post("/logout", dependencies=[Depends(securuty.access_token_required)])
 def logout(response: Response):
     """
     Выход пользователя и удаление JWT токена из cookies

@@ -107,7 +107,7 @@ def get_all_gifts_by_user_id(userID: int, db: Session = Depends(get_db)):
     """
     Получение всех подарков пользователя по ID пользователя
     """
-    gifts = DataBaseInterface.get_all_gifts(db, userID) 
+    gifts = DataBaseInterface.get_all_gifts_user(db, userID) 
     if len(gifts) == 0:
         raise HTTPException(status_code=404, detail="Подарки пользователя не найдены")
     return gifts
