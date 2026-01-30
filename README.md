@@ -84,17 +84,16 @@ http://localhost:8000/redoc
 ## 🧪 Пример API запросов
 
 ### 🔹 Регистрация
-`POST /auth/register`
+`POST /users`
 ```json
 {
-  "email": "example@mail.com",
   "login": "my_login",
   "password": "123456"
 }
 ```
 
 ### 🔹 Авторизация (получение JWT)
-`POST /auth/login`
+`POST /users/verify_password`
 ```json
 {
   "login": "my_login",
@@ -103,7 +102,7 @@ http://localhost:8000/redoc
 ```
 
 ### 🔹 Создание wishlist
-`POST /wishlists`
+`POST /gifts`
 ```json
 {
   "name": "Подарки на ДР",
