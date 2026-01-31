@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from authx.exceptions import AuthXException
 from sqlalchemy.orm import Session
 
-from models import Base, UpdateGift, GiftView
+from models import Base, GiftView
 from database import engine, SessionLocal
 import uvicorn
 
@@ -83,7 +83,7 @@ def get_gift_by_id(giftId: int, db: Session = Depends(get_db)):
 
 
 @rout.put("/{giftId}", dependencies=[Depends(securuty.access_token_required)])
-def edit_gift(giftId: int ,Viewgift: UpdateGift, db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
+def edit_gift(giftId: int ,Viewgift: GiftView, db: Session = Depends(get_db), token: dict = Depends(securuty.access_token_required)):
     """
     Редактирование подарка по ID
     """
@@ -96,10 +96,6 @@ def edit_gift(giftId: int ,Viewgift: UpdateGift, db: Session = Depends(get_db), 
         else:
             raise HTTPException(status_code=404, detail="Подарок не найден")
     raise HTTPException(status_code=403, detail="Отказано в доступе")
-
-# @rout.post("/lol")
-# def test(token: dict = Depends(securuty.access_token_required)):
-#     return token
 
 
 @rout.get("/user/{userID}")

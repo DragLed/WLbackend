@@ -23,27 +23,9 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, nullable=False, index=True)
-    email = Column(String, unique=True, nullable=False, index=True)
     hashed_password = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     gifts = relationship("Gift", back_populates="user",cascade="all, delete", passive_deletes=True)
-
-
-class UserCreate(BaseModel):
-    username: str
-    email: EmailStr
-    password: str
-
-class UserLogin(BaseModel):
-    username: str
-    password: str
-
-class UserResponse(BaseModel):
-    id: int
-    email: EmailStr
-
-    class Config:
-        from_attributes = True
 
 class GiftView(BaseModel):
     name: str
@@ -51,13 +33,6 @@ class GiftView(BaseModel):
     price: int
     photo: str | None
 
-class UpdateGift(BaseModel):
-    name: str
-    description: str | None
-    price: int
-    photo: str | None
-
 class UserView(BaseModel):
     username: str
-    email: EmailStr
     password: str

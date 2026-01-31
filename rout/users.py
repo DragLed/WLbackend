@@ -2,7 +2,7 @@ from fastapi import HTTPException, Response, Depends,  APIRouter
 from interface import DataBaseInterface, config, securuty
 from sqlalchemy.orm import Session
 
-from models import UserLogin, UserView
+from models import UserView
 from database import SessionLocal
 
 def get_db():
@@ -20,8 +20,10 @@ def create_user(user: UserView, db: Session = Depends(get_db)):
     """
     Создание пользователя
     """
-    DataBaseInterface.create_user(db, user.username, user.email, user.password)
-    return {"login": user.username,"email": user.email, "message": "Пользователь создан"}
+    user = DataBaseInterface.create_user(db, user.username, user.password)
+    if not user:
+        raise HTTPException(status_code=500, detail="Ошибка при создании пользователя")
+    return {"login": user.username, "message": "Пользователь создан"}
 
 
 @rout.get("/")
@@ -64,7 +66,7 @@ def get_user(userId:str, db: Session = Depends(get_db)):
 
 
 @rout.post("/verify_password")
-def verify_password(user: UserLogin, response: Response, db: Session = Depends(get_db)):
+def verify_password(user: UserView, response: Response, db: Session = Depends(get_db)):
     """
     Проверка логина и пароля пользователя и создание JWT токена
     """
@@ -75,9 +77,9 @@ def verify_password(user: UserLogin, response: Response, db: Session = Depends(g
             value=token,
             httponly=True,
             secure=False,  
-            samesite="Lax" 
+            samesite="lax",
         )
-        return {"message": token}
+        return {"message": "Successfully logged in"}
     raise HTTPException(status_code=404, detail="Пользователь не найден")
 
 @rout.post("/logout", dependencies=[Depends(securuty.access_token_required)])

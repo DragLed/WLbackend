@@ -85,16 +85,12 @@ class DataBaseInterface:
 
     
     @staticmethod
-    def create_user(db: Session, username:str, email: str, hashed_password:str):
+    def create_user(db: Session, username:str, hashed_password:str):
         user = db.query(User).filter(User.username == username).first()
         if user:
-            raise HTTPException(status_code=401, detail="Логин уже используеться")
-        user = db.query(User).filter(User.email == email).first()
-        if user:
-            raise HTTPException(status_code=401, detail="Почта уже используеться")
+            raise HTTPException(status_code=409, detail="Логин уже используеться")
         user = User(
         username=username,
-        email=email,
         hashed_password=hash_password(hashed_password)
         )
         db.add(user)
