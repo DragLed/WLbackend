@@ -1,9 +1,7 @@
-from fastapi import FastAPI, HTTPException, Response, Depends, Request
-from interface import DataBaseInterface, config, securuty
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from authx.exceptions import AuthXException
-from sqlalchemy.orm import Session
 from rout import users, gifts
 from models import Base
 from database import engine, SessionLocal

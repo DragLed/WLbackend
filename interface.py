@@ -85,13 +85,13 @@ class DataBaseInterface:
 
     
     @staticmethod
-    def create_user(db: Session, username:str, hashed_password:str):
+    def create_user(db: Session, username:str, password:str):
         user = db.query(User).filter(User.username == username).first()
         if user:
             raise HTTPException(status_code=409, detail="Логин уже используеться")
         user = User(
         username=username,
-        hashed_password=hash_password(hashed_password)
+        hashed_password=hash_password(password)
         )
         db.add(user)
         db.commit()
@@ -114,7 +114,7 @@ class DataBaseInterface:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
 
     @staticmethod
-    def verify_password( username:str, password: str ,db: Session):
+    def login( username:str, password: str ,db: Session):
         user = db.query(User).filter(User.username == username).first()
         if not user:   
             raise HTTPException(status_code=401, detail="Неверный логин/почта или пароль")

@@ -1,8 +1,9 @@
 from sqlalchemy import Column, Integer, String, Numeric,DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-from pydantic import BaseModel, EmailStr
-from typing import Optional
+from pydantic import BaseModel
+from datetime import datetime
+
 
 
 Base = declarative_base() 
@@ -33,6 +34,12 @@ class GiftView(BaseModel):
     price: int
     photo: str | None
 
-class UserView(BaseModel):
+class UserBase(BaseModel):
     username: str
+
+class UserCreate(UserBase):
     password: str
+
+class UserRead(UserBase):
+    id: int
+    created_at: datetime

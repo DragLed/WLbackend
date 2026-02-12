@@ -2,7 +2,7 @@ from fastapi import HTTPException, Response, Depends,  APIRouter
 from interface import DataBaseInterface, config, securuty
 from sqlalchemy.orm import Session
 
-from models import UserView
+from models import UserCreate
 from database import SessionLocal
 
 def get_db():
@@ -16,7 +16,7 @@ def get_db():
 rout = APIRouter(prefix="/users", tags=["Пользователь"])
 
 @rout.post("/")
-def create_user(user: UserView, db: Session = Depends(get_db)):
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
     """
     Создание пользователя
     """
@@ -65,12 +65,12 @@ def get_user(userId:str, db: Session = Depends(get_db)):
 
 
 
-@rout.post("/verify_password")
-def verify_password(user: UserView, response: Response, db: Session = Depends(get_db)):
+@rout.post("/login")
+def login(user: UserCreate, response: Response, db: Session = Depends(get_db)):
     """
     Проверка логина и пароля пользователя и создание JWT токена
     """
-    token = DataBaseInterface.verify_password(user.username, user.password,db)["access_token"]
+    token = DataBaseInterface.login(user.username, user.password,db)["access_token"]
     if token:
         response.set_cookie(
             key=config.JWT_ACCESS_COOKIE_NAME,
