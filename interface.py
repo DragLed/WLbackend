@@ -8,7 +8,7 @@ from models import Gift, User
 from database import credentials
 
 
-pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 
 config = AuthXConfig()
