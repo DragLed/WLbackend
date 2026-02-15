@@ -3,15 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from authx.exceptions import AuthXException
 from rout import users, gifts
-from models import Base
-from database import engine
+from database import engine, Base
 import uvicorn
 
 
 
 
 Base.metadata.create_all(bind=engine)
-print("Таблицы созданы")
+print("Tables created")
 
 app = FastAPI(
     title="WLbackend",
@@ -47,7 +46,7 @@ app.include_router(gifts.rout)
 def authx_exception_handler(request, exc):
     return JSONResponse(
         status_code=401,
-        content={"detail": "Требуется авторизация"},
+        content={"detail": "Authorization required"},
     )
 
 
