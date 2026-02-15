@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from authx.exceptions import AuthXException
 from rout import users, gifts
 from models import Base
-from database import engine, SessionLocal
+from database import engine
 import uvicorn
 
 
@@ -42,15 +42,6 @@ app.add_middleware(
 
 app.include_router(users.rout)
 app.include_router(gifts.rout)
-
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @app.exception_handler(AuthXException)
 def authx_exception_handler(request, exc):

@@ -1,6 +1,4 @@
 from fastapi import HTTPException
-from sqlalchemy import text
-from database import engine  
 from passlib.context import CryptContext
 from authx import AuthX, AuthXConfig
 from sqlalchemy.orm import Session
@@ -44,7 +42,6 @@ class DataBaseInterface:
         db.add(gift)
         db.commit()
         db.refresh(gift)
-        db.close()
         return gift
 
 
@@ -76,6 +73,8 @@ class DataBaseInterface:
     @staticmethod
     def edit_gift_by_id(db: Session, id, name, description, price, photo):
         gift = db.query(Gift).filter(Gift.id == id).first()
+        if not gift:
+            return None
         gift.name = name
         gift.description = description
         gift.price = price
@@ -88,7 +87,7 @@ class DataBaseInterface:
     def create_user(db: Session, username:str, password:str):
         user = db.query(User).filter(User.username == username).first()
         if user:
-            raise HTTPException(status_code=409, detail="Логин уже используеться")
+            raise HTTPException(status_code=409, detail="Логин уже используется")
         user = User(
         username=username,
         hashed_password=hash_password(password)
@@ -96,7 +95,6 @@ class DataBaseInterface:
         db.add(user)
         db.commit()
         db.refresh(user)
-        db.close()
         return user
 
 

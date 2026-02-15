@@ -1,13 +1,8 @@
-from fastapi import FastAPI, HTTPException, Response, Depends, Request, APIRouter
+from fastapi import HTTPException, Depends,APIRouter
 from interface import DataBaseInterface, config, securuty
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from authx.exceptions import AuthXException
 from sqlalchemy.orm import Session
-
-from models import Base, GiftView
-from database import engine, SessionLocal
-import uvicorn
+from models import GiftView
+from database import SessionLocal
 
 
 def get_db():
@@ -89,12 +84,11 @@ def edit_gift(giftId: int ,Viewgift: GiftView, db: Session = Depends(get_db), to
     """
     user_id = token.sub
     gift = DataBaseInterface.get_gift_by_id(db,giftId)
+    if not gift:
+        raise HTTPException(status_code=404, detail="Подарок не найден")
     if int(gift.userId) == int(user_id):
-        if gift:
-            DataBaseInterface.edit_gift_by_id(db, giftId, Viewgift.name, Viewgift.description, Viewgift.price, Viewgift.photo)
-            return {"message": f"Подарок с id: {giftId} обновлён"}
-        else:
-            raise HTTPException(status_code=404, detail="Подарок не найден")
+        DataBaseInterface.edit_gift_by_id(db, giftId, Viewgift.name, Viewgift.description, Viewgift.price, Viewgift.photo)
+        return {"message": f"Подарок с id: {giftId} обновлён"}
     raise HTTPException(status_code=403, detail="Отказано в доступе")
 
 
