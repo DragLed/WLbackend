@@ -21,10 +21,10 @@ class UserInterface:
         raise HTTPException(status_code=404, detail="No user found")
     
     @staticmethod
-    def delete_user(db: Session,id):
-        gift = db.query(User).filter(User.id == id).first()
-        if gift:
-            db.delete(gift)
+    def delete_user(db: Session,id:str):
+        user = db.query(User).filter(User.id == id).first()
+        if user:
+            db.delete(user)
             db.commit()
             return {"message": "User deleted"}
         raise HTTPException(status_code=404, detail="No user found")

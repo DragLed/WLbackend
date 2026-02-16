@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from authx.exceptions import AuthXException
-from rout import users, gifts, auth
+from router import users, gifts, auth
 from database.database import engine, Base
 import uvicorn
 
