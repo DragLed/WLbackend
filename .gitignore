@@ -1,4 +1,4 @@
 credentials.json
 dockerfile
+__pycache__/
 *.pyc
-__pycache__
