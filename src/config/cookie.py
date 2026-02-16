@@ -1,5 +1,5 @@
 from authx import AuthX, AuthXConfig
-from database import credentials
+from database.database import credentials
 
 
 config = AuthXConfig()

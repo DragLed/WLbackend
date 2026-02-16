@@ -1,8 +1,8 @@
 from fastapi import HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from api.gifts import GiftInterface
-from config.cookie import security, config
-from database import get_db
+from config.cookie import security
+from database.database import get_db
 from schemas.gifts import GiftView
 
 

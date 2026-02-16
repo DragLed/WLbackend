@@ -1,5 +1,5 @@
 from passlib.context import CryptContext
-from database import credentials
+from database.database import credentials
 
 
 pwd_context = CryptContext(schemes=[credentials["schemes"]], deprecated="auto")

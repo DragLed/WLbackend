@@ -35,7 +35,7 @@ class GiftInterface:
             db.delete(gift)
             db.commit()
             return {"message": "Gift deleted"}
-        return None
+        raise HTTPException(status_code=404, detail="No gift found")
 
     @staticmethod
     def get_gift_by_id(db: Session, id):

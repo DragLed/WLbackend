@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from authx.exceptions import AuthXException
-from rout import users, gifts
-from database import engine, Base
+from rout import users, gifts, auth
+from database.database import engine, Base
 import uvicorn
 
 
@@ -38,9 +38,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+app.include_router(auth.rout)
 app.include_router(users.rout)
 app.include_router(gifts.rout)
+
 
 @app.exception_handler(AuthXException)
 def authx_exception_handler(request, exc):
