@@ -14,3 +14,7 @@ class UserRead(UserBase):
     model_config = {
         "from_attributes": True
     }
+
+class UserResetPassword(BaseModel):
+    oldPassword: str   
+    newPassword: str

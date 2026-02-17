@@ -9,13 +9,13 @@ from schemas.gifts import GiftRespone,GiftEdit
 rout = APIRouter(prefix="/gifts", tags=["Gift"])
 
 
-@rout.get("/", response_model=list[GiftRespone])
-def get_all_my_gifts(db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
+@rout.post("/")
+def create_gift(gift: GiftRespone, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
     """
-    Get all gifts for the current user.
+    Create a gift.
     """
-    return GiftInterface.get_all_gifts_user(db, token.sub) 
-    
+    return GiftInterface.create_gift(db, gift.name, gift.description, gift.price, gift.photo, token.sub)
+
 
 @rout.get("/all", response_model=list[GiftRespone])
 def get_all_gifts(db: Session = Depends(get_db)):
@@ -23,14 +23,14 @@ def get_all_gifts(db: Session = Depends(get_db)):
     Get all gifts.
     """
     return GiftInterface.get_all_gifts(db) 
-     
 
-@rout.post("/")
-def create_gift(gift: GiftRespone, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
+
+@rout.get("/", response_model=list[GiftRespone])
+def get_all_my_gifts(db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
     """
-    Create a gift.
+    Get all gifts for the current user.
     """
-    return GiftInterface.create_gift(db, gift.name, gift.description, gift.price, gift.photo, token.sub)
+    return GiftInterface.get_all_gifts_user(db, token.sub) 
 
 
 @rout.delete("/{giftId}", dependencies=[Depends(security.access_token_required)])
