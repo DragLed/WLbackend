@@ -3,18 +3,18 @@ from sqlalchemy.orm import Session
 from api.gifts import GiftInterface
 from config.cookie import security
 from database.database import get_db
-from schemas.gifts import GiftRespone,GiftEdit
+from schemas.gifts import GiftRespone, GiftCreate
 
 
 rout = APIRouter(prefix="/gifts", tags=["Gift"])
 
 
 @rout.post("/")
-def create_gift(gift: GiftRespone, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
+def create_gift(gift: GiftCreate, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
     """
     Create a gift.
     """
-    return GiftInterface.create_gift(db, gift.name, gift.description, gift.price, gift.photo, token.sub)
+    return GiftInterface.create_gift(db, gift, token.sub)
 
 
 @rout.get("/all", response_model=list[GiftRespone])
@@ -53,11 +53,11 @@ def get_gift_by_id(giftId: int, db: Session = Depends(get_db)):
 
 
 @rout.put("/{giftId}", dependencies=[Depends(security.access_token_required)])
-def edit_gift(giftId: int, GiftEdit: GiftEdit, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
+def edit_gift(giftId: int, GiftEdit: GiftCreate, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
     """
     Update a gift by ID.
     """
-    return GiftInterface.edit_gift_by_id(db, giftId, token.sub, GiftEdit.name, GiftEdit.description, GiftEdit.price, GiftEdit.photo)
+    return GiftInterface.edit_gift_by_id(db, giftId, GiftEdit, token.sub)
 
 
 @rout.get("/all/{userID}", response_model=list[GiftRespone])
@@ -65,4 +65,12 @@ def get_all_gifts_by_user_id(userID: int, db: Session = Depends(get_db)):
     """
     Get all gifts for a user by user ID.
     """
-    return GiftInterface.get_all_gifts_user(db, userID) 
+    return GiftInterface.get_all_gifts_user(db, userID)
+
+@rout.put("/{id}/reserve", dependencies=[Depends(security.access_token_required)])
+def reserve_gift(gift_id:int, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
+    return GiftInterface.reserve_gift(db, gift_id, token.sub)
+
+@rout.put("/{id}/unreserve", dependencies=[Depends(security.access_token_required)])
+def unreserve_gift(gift_id:int, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
+    return GiftInterface.unreserve_gift(db, gift_id, token.sub)

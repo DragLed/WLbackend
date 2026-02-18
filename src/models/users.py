@@ -9,4 +9,5 @@ class User(Base):
     username = Column(String, unique=True, nullable=False, index=True)
     hashed_password = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    gifts = relationship("Gift", back_populates="user",cascade="all, delete", passive_deletes=True)
+    gifts = relationship("Gift", back_populates="user", foreign_keys="Gift.userId", cascade="all, delete", passive_deletes=True)
+    reserved_gifts = relationship("Gift", foreign_keys="Gift.reserved_by_id", back_populates="reserved_by")

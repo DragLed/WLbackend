@@ -15,7 +15,7 @@ print("Tables created")
 app = FastAPI(
     title="WLbackend",
     description="This is a very fancy project, with auto docs for the API and everything",
-    version="1.0.0",
+    version="1.1.2",
     terms_of_service="http://example.com/terms/",
     contact={
         "name": "DragLed",
