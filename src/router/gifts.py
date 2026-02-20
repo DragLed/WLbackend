@@ -1,4 +1,4 @@
-from fastapi import HTTPException, Depends, APIRouter
+from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 from api.gifts import GiftInterface
 from config.cookie import security
@@ -46,10 +46,7 @@ def get_gift_by_id(giftId: int, db: Session = Depends(get_db)):
     """
     Get a gift by ID.
     """
-    gift = GiftInterface.get_gift_by_id(db,giftId)
-    if gift:
-        return gift
-    raise HTTPException(status_code=404, detail="Gift not found")
+    return GiftInterface.get_gift_by_id(db,giftId)
 
 
 @rout.put("/{giftId}", dependencies=[Depends(security.access_token_required)])
@@ -67,10 +64,18 @@ def get_all_gifts_by_user_id(userID: int, db: Session = Depends(get_db)):
     """
     return GiftInterface.get_all_gifts_user(db, userID)
 
+
 @rout.put("/{id}/reserve", dependencies=[Depends(security.access_token_required)])
 def reserve_gift(gift_id:int, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
+    """
+    Reserve a gift for the current user.
+    """
     return GiftInterface.reserve_gift(db, gift_id, token.sub)
+
 
 @rout.put("/{id}/unreserve", dependencies=[Depends(security.access_token_required)])
 def unreserve_gift(gift_id:int, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
+    """
+    Unreserve a previously reserved gift.
+    """
     return GiftInterface.unreserve_gift(db, gift_id, token.sub)

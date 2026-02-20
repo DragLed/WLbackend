@@ -2,15 +2,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from authx.exceptions import AuthXException
-from router import users, gifts, auth
+from router import users, gifts, auth, Dev
 from database.database import engine, Base
 import uvicorn
 
 
-
-
 Base.metadata.create_all(bind=engine)
 print("Tables created")
+
 
 app = FastAPI(
     title="WLbackend",
@@ -19,7 +18,7 @@ app = FastAPI(
     terms_of_service="http://example.com/terms/",
     contact={
         "name": "DragLed",
-        "url": "http://t.me/DragLed",
+        "url": "https://t.me/DragLed",
         "email": "koren_mira.10@bk.ru",
     },
 )
@@ -30,6 +29,7 @@ origins = [
     "http://127.0.0.1:5173",
 ]
 
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -38,6 +38,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+app.include_router(Dev.rout)
 app.include_router(auth.rout)
 app.include_router(users.rout)
 app.include_router(gifts.rout)
@@ -49,7 +51,6 @@ def authx_exception_handler(request, exc):
         status_code=401,
         content={"detail": "Authorization required"},
     )
-
 
 
 if __name__ == "__main__":

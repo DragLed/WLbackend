@@ -1,7 +1,7 @@
 from api.auth import AuthInterface
 from api.users import UserInterface
 from config.cookie import security, config
-from fastapi import HTTPException, Depends, Response, APIRouter
+from fastapi import Depends, Response, APIRouter
 from sqlalchemy.orm import Session
 from schemas.users import UserCreate, UserRead, UserResetPassword
 from database.database import get_db
