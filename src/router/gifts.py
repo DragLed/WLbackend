@@ -9,7 +9,7 @@ from schemas.gifts import GiftRespone, GiftCreate
 rout = APIRouter(prefix="/gifts", tags=["Gift"])
 
 
-@rout.post("/")
+@rout.post("/", dependencies=[Depends(security.access_token_required)])
 def create_gift(gift: GiftCreate, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
     """
     Create a gift.
@@ -17,7 +17,7 @@ def create_gift(gift: GiftCreate, db: Session = Depends(get_db), token: dict = D
     return GiftInterface.create_gift(db, gift, token.sub)
 
 
-@rout.get("/all", response_model=list[GiftRespone])
+@rout.get("/all", dependencies=[Depends(security.access_token_required)], response_model=list[GiftRespone])
 def get_all_gifts(db: Session = Depends(get_db)):
     """
     Get all gifts.
@@ -25,7 +25,7 @@ def get_all_gifts(db: Session = Depends(get_db)):
     return GiftInterface.get_all_gifts(db) 
 
 
-@rout.get("/", response_model=list[GiftRespone])
+@rout.get("/", dependencies=[Depends(security.access_token_required)], response_model=list[GiftRespone])
 def get_all_my_gifts(db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
     """
     Get all gifts for the current user.
@@ -41,7 +41,7 @@ def remove_gift(giftId: str, db: Session = Depends(get_db), token: dict = Depend
     return GiftInterface.delete_gift(db, giftId, token.sub)
 
 
-@rout.get("/{giftId}", response_model=GiftRespone)
+@rout.get("/{giftId}", dependencies=[Depends(security.access_token_required)], response_model=GiftRespone)
 def get_gift_by_id(giftId: int, db: Session = Depends(get_db)):
     """
     Get a gift by ID.
@@ -57,7 +57,7 @@ def edit_gift(giftId: int, GiftEdit: GiftCreate, db: Session = Depends(get_db), 
     return GiftInterface.edit_gift_by_id(db, giftId, GiftEdit, token.sub)
 
 
-@rout.get("/all/{userID}", response_model=list[GiftRespone])
+@rout.get("/all/{userID}", dependencies=[Depends(security.access_token_required)], response_model=list[GiftRespone])
 def get_all_gifts_by_user_id(userID: int, db: Session = Depends(get_db)):
     """
     Get all gifts for a user by user ID.
