@@ -52,7 +52,7 @@ def get_me(db: Session = Depends(get_db), token: dict = Depends(securuty.access_
     raise HTTPException(status_code=404, detail="Пользователь не найден")
 
 
-@rout.get("/{userId}")
+@rout.get("/{userId}/12")
 def get_user(userId:str, db: Session = Depends(get_db)):
     """
     Получение информации о пользователе по ID
@@ -76,8 +76,8 @@ def login(user: UserCreate, response: Response, db: Session = Depends(get_db)):
             key=config.JWT_ACCESS_COOKIE_NAME,
             value=token,
             httponly=True,
-            secure=False,  
-            samesite="lax",
+            secure=True,
+            samesite="lax"
         )
         return {"message": "Successfully logged in"}
     raise HTTPException(status_code=404, detail="Пользователь не найден")

@@ -29,6 +29,7 @@ app = FastAPI(
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "https://dragledwl.ru"
 ]
 
 app.add_middleware(
@@ -53,4 +54,11 @@ def authx_exception_handler(request, exc):
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        ssl_certfile="localhost+2.pem",
+        ssl_keyfile="localhost+2-key.pem"
+    )
