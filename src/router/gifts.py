@@ -65,7 +65,7 @@ def get_all_gifts_by_user_id(userID: int, db: Session = Depends(get_db)):
     return GiftInterface.get_all_gifts_user(db, userID)
 
 
-@rout.put("/{id}/reserve", dependencies=[Depends(security.access_token_required)])
+@rout.put("/{gift_id}/reserve", dependencies=[Depends(security.access_token_required)])
 def reserve_gift(gift_id:int, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
     """
     Reserve a gift for the current user.
@@ -73,7 +73,7 @@ def reserve_gift(gift_id:int, db: Session = Depends(get_db), token: dict = Depen
     return GiftInterface.reserve_gift(db, gift_id, token.sub)
 
 
-@rout.put("/{id}/unreserve", dependencies=[Depends(security.access_token_required)])
+@rout.put("/{gift_id}/unreserve", dependencies=[Depends(security.access_token_required)])
 def unreserve_gift(gift_id:int, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
     """
     Unreserve a previously reserved gift.
