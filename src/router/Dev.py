@@ -1,9 +1,11 @@
 from fastapi import HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
+from schemas.wishlists import WishlistRespone
 from database.database import get_db
 from models.gifts import Gift
 from models.users import User
 from sqlalchemy import text
+from api.wishlist import WishlistInterface
 from config.cookie import security
 
 
@@ -37,3 +39,7 @@ def get_stats(db: Session = Depends(get_db)):
         "reserved_gifts": reserved_gifts
     }
 
+
+@rout.get("/wishlisrt", dependencies=[Depends(security.access_token_required)], response_model=list[WishlistRespone])
+def get_all_wishlists(db: Session = Depends(get_db)):
+    return WishlistInterface.get_all_wishlists(db)

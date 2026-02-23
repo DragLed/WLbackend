@@ -2,13 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from authx.exceptions import AuthXException
-from router import users, gifts, auth, Dev
+from router import users, gifts, auth, Dev, wishlist
 from database.database import engine, Base
 import uvicorn
+import models
 
-
-Base.metadata.create_all(bind=engine)
-print("Tables created")
+print("table created")
 
 
 app = FastAPI(
@@ -27,6 +26,7 @@ app = FastAPI(
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "https://dragledwl.ru",
 ]
 
 
@@ -42,6 +42,7 @@ app.add_middleware(
 app.include_router(Dev.rout)
 app.include_router(auth.rout)
 app.include_router(users.rout)
+app.include_router(wishlist.rout)
 app.include_router(gifts.rout)
 
 

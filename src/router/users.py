@@ -1,5 +1,6 @@
 from fastapi import HTTPException, Response, Depends, APIRouter
 from api.users import UserInterface
+from api.wishlist import WishlistInterface
 from sqlalchemy.orm import Session
 from schemas.users import UserRead
 from database.database import get_db
@@ -38,3 +39,6 @@ def remove_user(response: Response, Id: str, db: Session = Depends(get_db), toke
     raise HTTPException(status_code=403, detail="Access denied")
     
 
+@rout.get("/{userId}/wishlist", dependencies=[Depends(security.access_token_required)])
+def get_user_wishlists(userId:int, db: Session = Depends(get_db)):
+    return WishlistInterface.get_all_user_wishlist(db, userId)
