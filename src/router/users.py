@@ -1,4 +1,5 @@
 from fastapi import HTTPException, Response, Depends, APIRouter
+from authx.schema import TokenPayload
 from api.users import UserInterface
 from api.wishlist import WishlistInterface
 from sqlalchemy.orm import Session
@@ -28,7 +29,7 @@ def get_user(Id:str, db: Session = Depends(get_db)):
 
 
 @rout.delete('/{Id}', dependencies=[Depends(security.access_token_required)])
-def remove_user(response: Response, Id: str, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
+def remove_user(response: Response, Id: str, db: Session = Depends(get_db), token: TokenPayload = Depends(security.access_token_required)):
     """
     Delete a user by ID.
     """

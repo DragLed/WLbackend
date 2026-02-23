@@ -2,6 +2,7 @@ from api.auth import AuthInterface
 from api.users import UserInterface
 from config.cookie import security, config
 from fastapi import Depends, Response, APIRouter
+from authx.schema import TokenPayload
 from sqlalchemy.orm import Session
 from schemas.users import UserCreate, UserRead, UserResetPassword
 from database.database import get_db
@@ -45,14 +46,14 @@ def logout(response: Response):
     return {"message": "You are logged out"}
 
 @rout.post("/reset_password", dependencies=[Depends(security.access_token_required)])
-def reset_password(user: UserResetPassword, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
+def reset_password(user: UserResetPassword, db: Session = Depends(get_db), token: TokenPayload = Depends(security.access_token_required)):
     """
     pass
     """
-    return AuthInterface.reset_password(db, token.sub, user)
+    return AuthInterface.reset_password(db, int(token.sub), user)
 
 @rout.get("/me", dependencies=[Depends(security.access_token_required)], response_model=UserRead)
-def get_me(db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
+def get_me(db: Session = Depends(get_db), token: TokenPayload = Depends(security.access_token_required)):
     """
     Getting information about the current user using a JWT token
     """

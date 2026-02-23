@@ -1,4 +1,5 @@
 from fastapi import Depends, APIRouter
+from authx.schema import TokenPayload
 from sqlalchemy.orm import Session
 from api.gifts import GiftInterface
 from config.cookie import security
@@ -10,11 +11,11 @@ rout = APIRouter(prefix="/gifts", tags=["Gift"])
 
 
 @rout.post("/", dependencies=[Depends(security.access_token_required)])
-def create_gift(gift: GiftCreate, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
+def create_gift(gift: GiftCreate, db: Session = Depends(get_db), token: TokenPayload = Depends(security.access_token_required)):
     """
     Create a gift.
     """
-    return GiftInterface.create_gift(db, gift, token.sub)
+    return GiftInterface.create_gift(db, gift, int(token.sub))
 
 @rout.get("/{gift_id}", dependencies=[Depends(security.access_token_required)], response_model=GiftResponse)
 def get_gift(gift_id:int, db: Session = Depends(get_db)):
@@ -22,11 +23,11 @@ def get_gift(gift_id:int, db: Session = Depends(get_db)):
 
 
 @rout.delete("/{giftId}", dependencies=[Depends(security.access_token_required)])
-def remove_gift(giftId: str, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
+def remove_gift(giftId: str, db: Session = Depends(get_db), token: TokenPayload = Depends(security.access_token_required)):
     """
     Delete a gift by ID.
     """
-    return GiftInterface.delete_gift(db, giftId, token.sub)
+    return GiftInterface.delete_gift(db, giftId, int(token.sub))
 
 
 @rout.get("/{wishlist_id}/wishlist", dependencies=[Depends(security.access_token_required)], response_model=list[GiftResponse] )
