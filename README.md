@@ -1,228 +1,137 @@
-# WLbackend — Backend для Wishlist App
+﻿# WLbackend
 
-## 🚀 О проекте
-WLbackend — серверная часть приложения Wishlist App (список желаний).  
-Приложение позволяет пользователям создавать собственные wishlists, добавлять элементы, делиться ими и работать совместно с другими пользователями.
+Backend API for a wishlist application, built with FastAPI, SQLAlchemy, and JWT (cookie-based auth).
 
-Бэкенд написан на **Python + FastAPI**, использует **JWT‑аутентификацию**, REST API и подключение к базе данных (PostgreSQL).
+## Features
+- User registration and login.
+- Authentication via JWT stored in HttpOnly cookie (`my_access_token`).
+- CRUD for wishlists.
+- CRUD for gifts inside wishlists.
+- Basic developer endpoints (`/dev/*`) for health and stats.
+- Swagger and ReDoc documentation out of the box.
 
----
+## Tech Stack
+- Python 3.12 (recommended)
+- FastAPI
+- SQLAlchemy
+- PostgreSQL (`psycopg2`)
+- AuthX (JWT)
+- Alembic
 
-## 🧩 Основные возможности
-- Регистрация и авторизация пользователей (JWT)
-- CRUD для списков желаний (создание / просмотр / редактирование / удаление)
-- CRUD для элементов внутри списка (например: название, цена, описание, фото)
-- Возможность совместного доступа к списку (share)
-- Автоматически генерируемая API‑документация Swagger / Redoc
-
----
-
-## 🔧 Технологии
-| Компонент          | Используемые технологии |
-|-------------------|--------------------------|
-| Backend Framework | FastAPI                  |
-| Язык              | Python 3.11+            |
-| База данных       | PostgreSQL              |
-| ORM/DB Layer      | SQLAlchemy              |
-| Авторизация       | OAuth2 + JWT            |
-| Документация API  | Swagger / Redoc         |
-
----
-
-## 📂 Структура проекта
-```
+## Project Structure
+```text
 WLbackend/
-│── main.py          # Точка входа FastAPI
-│── models.py        # Модели БД (User, Wishlist, Item)
-│── interface.py     # Логика обработки/сервисы
-│── database.py      # Подключение к БД, session
-│── requirements.txt # Список зависимостей
-│── README.md        # Документация проекта
+  src/
+    main.py
+    api/
+    config/
+    core/
+    database/
+    models/
+    router/
+    schemas/
+    alembic/
+    alembic.ini
+  requirements.txt
+  dockerfile
+  credentials.json
 ```
 
----
+## Configuration
+The app reads settings from `credentials.json` in the project root.
 
-## ✅ Запуск проекта
-
-### 1. Клонируй репозиторий
-```sh
-git clone https://github.com/DragLed/WLbackend.git
-cd WLbackend
+Required keys:
+```json
+{
+  "db_connections": "postgresql+psycopg2://USER:PASSWORD@HOST:5432/DB_NAME",
+  "JWT_SECRET_KEY": "your_secret_key",
+  "schemes": "argon2"
+}
 ```
 
-### 2. Создай виртуальное окружение
-```sh
-python -m venv venv
-source venv/bin/activate  # Linux / MacOS
-venv\Scripts\activate   # Windows
+## Local Run
+1. Create and activate a virtual environment:
+```bash
+python -m venv .venv
+.venv\\Scripts\\activate
 ```
 
-### 3. Установи зависимости
-```sh
+2. Install dependencies:
+```bash
 pip install -r requirements.txt
 ```
 
-### 4. Запусти сервер
-```sh
+3. Apply migrations:
+```bash
+cd src
+alembic -c alembic.ini upgrade head
+cd ..
+```
+
+4. Start API:
+```bash
+cd src
 uvicorn main:app --reload
 ```
 
-### 5. Открой документацию API
+API will be available at `http://127.0.0.1:8000`.
 
-Swagger:
-```
-http://localhost:8000/docs
-```
-
-Redoc:
-```
-http://localhost:8000/redoc
+## Docker
+Build image:
+```bash
+docker build -t wlbackend -f dockerfile .
 ```
 
----
-
-## 🧪 Пример API запросов
-
-### 🔹 Регистрация
-`POST /users`
-```json
-{
-  "login": "my_login",
-  "password": "123456"
-}
+Run container:
+```bash
+docker run --rm -p 8000:8000 wlbackend
 ```
 
-### 🔹 Авторизация (получение JWT)
-`POST /users/verify_password`
-```json
-{
-  "login": "my_login",
-  "password": "123456"
-}
-```
+## API Docs
+- Swagger UI: `http://127.0.0.1:8000/docs`
+- ReDoc: `http://127.0.0.1:8000/redoc`
 
-### 🔹 Создание wishlist
-`POST /gifts`
-```json
-{
-  "name": "Подарки на ДР",
-  "description": "Список желаемого на день рождения"
-}
-```
+## Auth Flow
+1. Register user via `POST /auth/`.
+2. Login via `POST /auth/login`.
+3. After login, server sets HttpOnly cookie `my_access_token`.
+4. Use protected endpoints with this cookie attached.
 
----
+## Main Endpoints
 
-## 🛠 План улучшений
-- Docker + docker-compose для автоматического деплоя
-- Логирование и мониторинг
-- Система ролей и разрешений (чтение / редактирование / владелец)
-- Уведомления (email + push в будущем)
+### Auth
+- `POST /auth/` - register user
+- `POST /auth/login` - login and set auth cookie
+- `POST /auth/logout` - clear auth cookie (protected)
+- `POST /auth/reset_password` - change password (protected)
+- `GET /auth/me` - get current user (protected)
 
----
+### Users
+- `GET /users/` - list users
+- `GET /users/{Id}` - get user by id
+- `DELETE /users/{Id}` - delete own user and clear cookie (protected)
+- `GET /users/{userId}/wishlist` - get user wishlists (protected)
 
-## 👨‍💻 Автор
-**Корниенко Никита (DragLed)** — full‑stack разработчик, создаёт Wishlist App как pet‑project и как учебный full‑stack продукт.
+### Wishlist
+- `POST /wishlist/` - create wishlist (protected)
+- `GET /wishlist/` - get current user wishlists (protected)
+- `GET /wishlist/{id}` - get wishlist by id (protected)
+- `DELETE /wishlist/{id}` - delete wishlist (protected)
 
----
+### Gifts
+- `POST /gifts/` - create gift (protected)
+- `GET /gifts/{gift_id}` - get gift by id (protected)
+- `DELETE /gifts/{giftId}` - delete gift (protected)
+- `GET /gifts/{wishlist_id}/wishlist` - list gifts in wishlist (protected)
 
-## 📄 Лицензия
-Проект распространяется под лицензией **MIT**.
+### Dev
+- `GET /dev/health` - DB health check (protected)
+- `GET /dev/stats` - users/gifts stats (protected)
+- `GET /dev/wishlist` - all wishlists (protected)
 
----
-=======
-WLbackend
-
-Бэкенд-часть приложения Wishlist App
-
-🚀 О проекте
-
-WLbackend — это серверная часть приложения списка желаний (Wishlist App), разработанного с фронтендом на Vue.js и бэкендом на FastAPI/Django REST framework (выбери одну).
-Проект позволяет:
-
-регистрировать пользователей и обеспечивать аутентификацию;
-
-создавать, редактировать и удалять списки желаний;
-
-добавлять элементы в списки, отмечать как выполненные;
-
-делиться списками с другими пользователями и работать совместно.
-
-🧩 Технологии
-
-Язык программирования: Python
-
-Фреймворк: FastAPI / Django REST (укажи точный)
-
-База данных: (например) PostgreSQL / SQLite
-
-Аутентификация: JWT / OAuth2
-
-API документация: Swagger / Redoc
-
-Документирование кода и тесты (если есть)
-
-📂 Структура проекта
-├── database.py        # работа с БД (подключение, миграции и прочее)  
-├── models.py          # модели данных (User, Wishlist, Item и др.)  
-├── interface.py       # слои взаимодействия (сервисы, репозитории)  
-├── main.py            # точка входа приложения, роутинг и конфигурация  
-├── __pycache__/       # автогенерируемые кэши Python  
-
-✅ Быстрый старт
-
-Клонируй репозиторий:
-
-git clone https://github.com/DragLed/WLbackend.git
-
-
-Перейди в папку проекта:
-
-cd WLbackend
-
-
-Установи зависимости:
-
-pip install -r requirements.txt
-
-
-Запусти сервер (например):
-
-uvicorn main:app --reload
-
-
-Открой документацию API:
-
-http://localhost:8000/docs
-
-🧪 Использование
-
-Зарегистрируй пользователя через endpoint /auth/register.
-
-Получи JWT-токен через /auth/login.
-
-Включи токен в заголовок Authorization: Bearer <token> для защищённых эндпоинтов.
-
-Создавай списки желаний через /wishlists, добавляй элементы через /wishlists/{id}/items.
-
-Делись списками с другими пользователями через endpoint /wishlists/{id}/share.
-
-🛠 Планируемые улучшения
-
-Добавить поддержку соцсетей для логина (Google, Facebook).
-
-Реализовать уведомления (email / push) о новых элементах или изменениях в списке.
-
-Разрешения: визуальный доступ и права редактирования для разных пользователей.
-
-Тесты полного покрытия и CI/CD-pipeline.
-
-Docker-контейнеризация и развёртывание на облаке.
-
-🧑‍💻 Автор
-
-Никита Корниенко (псевдоним: DragLed) — full-stack разработчик, создающий Wishlist App с фронтом на Vue.js и сервером на Python.
-
-📄 Лицензия
-
-MIT (или другая лицензия, укажи по желанию)
->>>>>>> db2abf584b875bd58f80436a8552a2ef81a660a6
+## Notes
+- CORS is preconfigured for:
+  - `http://localhost:5173`
+  - `http://127.0.0.1:5173`
+  - `https://dragledwl.ru`
+- Entry point for local development is `src/main.py`.
