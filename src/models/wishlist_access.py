@@ -3,12 +3,7 @@ from datetime import datetime
 from sqlalchemy import ForeignKey, Enum, DateTime, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database.database import Base
-
-
-class WishlistRole(str, enum.Enum):
-    viewer = "viewer"
-    editor = "editor"
-
+from core.enums import WishlistRole
 
 class WishlistAccess(Base):
     __tablename__ = "wishlist_accesses"

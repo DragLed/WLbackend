@@ -40,6 +40,6 @@ def get_stats(db: Session = Depends(get_db)):
     }
 
 
-@rout.get("/wishlisrt", dependencies=[Depends(security.access_token_required)], response_model=list[WishlistRespone])
+@rout.get("/wishlist", dependencies=[Depends(security.access_token_required)], response_model=list[WishlistRespone])
 def get_all_wishlists(db: Session = Depends(get_db)):
     return WishlistInterface.get_all_wishlists(db)

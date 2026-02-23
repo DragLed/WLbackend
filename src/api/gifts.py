@@ -37,24 +37,27 @@ class GiftInterface:
         raise HTTPException(status_code=404, detail="Not found")
     
 
-    # @staticmethod
-    # def delete_gift(db: Session, giftid: str, userId:int):
-    #     gift = db.query(Gift).filter(Gift.id == giftid).first()
-    #     if gift:
-    #         if gift.userId == int(userId):
-    #             db.delete(gift)
-    #             db.commit()
-    #             return {"message": "Gift deleted"}
-    #         raise HTTPException(status_code=403, detail="Access denied") 
-    #     raise HTTPException(status_code=404, detail="No gift found")
+    @staticmethod
+    def get_gift_by_id(db: Session, id):
+        gift = db.query(Gift).filter(Gift.id == id).first()
+        if gift:   
+            return gift
+        raise HTTPException(status_code=404, detail="Gift not found")
+
+    @staticmethod
+    def delete_gift(db: Session, giftid: str, userId:int):
+        gift = db.query(Gift).filter(Gift.id == giftid).first()
+        wishlist = db.query(Wishlist).filter(Wishlist.owner_id == userId).first()
+        if gift:
+            if gift.wishlist_id == wishlist.id:
+                db.delete(gift)
+                db.commit()
+                return {"message": "Gift deleted"}
+            raise HTTPException(status_code=403, detail="Access denied") 
+        raise HTTPException(status_code=404, detail="No gift found")
 
 
-    # @staticmethod
-    # def get_gift_by_id(db: Session, id):
-    #     gift = db.query(Gift).filter(Gift.id == id).first()
-    #     if gift:   
-    #         return gift
-    #     raise HTTPException(status_code=404, detail="Gift not found")
+    
     
 
     # @staticmethod

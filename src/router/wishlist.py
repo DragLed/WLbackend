@@ -23,8 +23,8 @@ def get_my_wishlists(db: Session = Depends(get_db), token: dict = Depends(securi
     return WishlistInterface.get_all_user_wishlist(db, token.sub)
 
 @rout.get("/{id}", dependencies=[Depends(security.access_token_required)], response_model=WishlistRespone)
-def get_wishlist(id:int, db: Session = Depends(get_db)):
-    return WishlistInterface.get_wishlist(db, id)
+def get_wishlist(id:int, db: Session = Depends(get_db), token: dict = Depends(security.access_token_required)):
+    return WishlistInterface.get_wishlist(db, id, token.sub)
     
 
 @rout.delete("/{id}", dependencies=[Depends(security.access_token_required)])
