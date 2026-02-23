@@ -45,7 +45,7 @@ Required keys:
 {
   "db_connections": "postgresql+psycopg2://USER:PASSWORD@HOST:5432/DB_NAME",
   "JWT_SECRET_KEY": "your_secret_key",
-  "schemes": "argon2"
+  "schemes": "your scheme"
 }
 ```
 
