@@ -2,25 +2,23 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from authx.exceptions import AuthXException
-from rout import users, gifts
-from models import Base
-from database import engine
+from router import users, gifts, auth, Dev
+from database.database import engine, Base
 import uvicorn
 
 
-
-
 Base.metadata.create_all(bind=engine)
-print("Таблицы созданы")
+print("Tables created")
+
 
 app = FastAPI(
     title="WLbackend",
     description="This is a very fancy project, with auto docs for the API and everything",
-    version="1.0.0",
+    version="1.1.2",
     terms_of_service="http://example.com/terms/",
     contact={
         "name": "DragLed",
-        "url": "http://t.me/DragLed",
+        "url": "https://t.me/DragLed",
         "email": "koren_mira.10@bk.ru",
     },
 )
@@ -32,6 +30,7 @@ origins = [
     "https://dragledwl.ru"
 ]
 
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -41,24 +40,19 @@ app.add_middleware(
 )
 
 
+app.include_router(Dev.rout)
+app.include_router(auth.rout)
 app.include_router(users.rout)
 app.include_router(gifts.rout)
+
 
 @app.exception_handler(AuthXException)
 def authx_exception_handler(request, exc):
     return JSONResponse(
         status_code=401,
-        content={"detail": "Требуется авторизация"},
+        content={"detail": "Authorization required"},
     )
-
 
 
 if __name__ == "__main__":
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,
-        ssl_certfile="localhost+2.pem",
-        ssl_keyfile="localhost+2-key.pem"
-    )
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

@@ -1,5 +1,7 @@
 credentials.json
 dockerfile
 __pycache__/
+.vscode
+.dockerignore
 *.pyc
 *.exe
