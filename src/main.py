@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from authx.exceptions import AuthXException
 from router import users, gifts, auth, Dev, wishlist
-from database.database import engine, Base
 import uvicorn
 import models
 

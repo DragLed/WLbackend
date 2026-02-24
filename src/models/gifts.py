@@ -4,16 +4,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database.database import Base
 
 
-
 class Gift(Base):
     __tablename__ = "gifts"
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
     wishlist_id: Mapped[int] = mapped_column(
-        ForeignKey("wishlists.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True
+        ForeignKey("wishlists.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
     title: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -26,8 +23,7 @@ class Gift(Base):
     is_reserved: Mapped[bool] = mapped_column(Boolean, default=False)
 
     reserved_by_id: Mapped[int | None] = mapped_column(
-        ForeignKey("users.id", ondelete="SET NULL"),
-        nullable=True
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
 
     wishlist: Mapped["Wishlist"] = relationship(back_populates="gifts")

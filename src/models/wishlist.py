@@ -1,4 +1,3 @@
-import enum
 import secrets
 from datetime import datetime
 from sqlalchemy import String, DateTime, ForeignKey, Enum, Text
@@ -13,9 +12,7 @@ class Wishlist(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
 
     owner_id: Mapped[int] = mapped_column(
-    ForeignKey("users.id", ondelete="CASCADE"),
-    nullable=False,
-    index=True
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
     title: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -26,26 +23,20 @@ class Wishlist(Base):
     visibility: Mapped[WishlistVisibility] = mapped_column(
         Enum(WishlistVisibility),
         default=WishlistVisibility.private,
-        nullable=False, 
-        name="visibility"
+        nullable=False,
+        name="visibility",
     )
 
-    share_token: Mapped[str | None] = mapped_column(
-        String(64),
-        unique=True,
-        index=True
-    )
+    share_token: Mapped[str | None] = mapped_column(String(64), unique=True, index=True)
 
     owner: Mapped["User"] = relationship(back_populates="wishlists")
 
     gifts: Mapped[list["Gift"]] = relationship(
-        back_populates="wishlist",
-        cascade="all, delete-orphan"
+        back_populates="wishlist", cascade="all, delete-orphan"
     )
 
     accesses: Mapped[list["WishlistAccess"]] = relationship(
-        back_populates="wishlist",
-        cascade="all, delete-orphan"
+        back_populates="wishlist", cascade="all, delete-orphan"
     )
 
     def generate_share_token(self) -> None:

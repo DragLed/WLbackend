@@ -8,7 +8,6 @@ from sqlalchemy import text
 from api.wishlist import WishlistInterface
 from config.cookie import security
 
-
 rout = APIRouter(prefix="/dev", tags=["Dev"])
 
 
@@ -22,7 +21,7 @@ def health_check(db: Session = Depends(get_db)):
         return {"status": "ok"}
     except:
         raise HTTPException(status_code=500, detail="Database error")
-    
+
 
 @rout.get("/stats", dependencies=[Depends(security.access_token_required)])
 def get_stats(db: Session = Depends(get_db)):
@@ -36,10 +35,14 @@ def get_stats(db: Session = Depends(get_db)):
     return {
         "users_count": users_count,
         "gifts_count": gifts_count,
-        "reserved_gifts": reserved_gifts
+        "reserved_gifts": reserved_gifts,
     }
 
 
-@rout.get("/wishlist", dependencies=[Depends(security.access_token_required)], response_model=list[WishlistRespone])
+@rout.get(
+    "/wishlist",
+    dependencies=[Depends(security.access_token_required)],
+    response_model=list[WishlistRespone],
+)
 def get_all_wishlists(db: Session = Depends(get_db)):
     return WishlistInterface.get_all_wishlists(db)

@@ -7,9 +7,7 @@ from sqlalchemy.orm import Session
 from schemas.users import UserCreate, UserRead, UserResetPassword
 from database.database import get_db
 
-
 rout = APIRouter(prefix="/auth", tags=["Auth"])
-
 
 
 @rout.post("/", response_model=UserRead)
@@ -30,10 +28,10 @@ def login(user: UserCreate, response: Response, db: Session = Depends(get_db)):
         key=config.JWT_ACCESS_COOKIE_NAME,
         value=token,
         httponly=True,
-        secure=False,  
+        secure=False,
         samesite="lax",
     )
-    
+
     return {"message": "Successfully logged in"}
 
 
@@ -45,17 +43,29 @@ def logout(response: Response):
     response.delete_cookie(key=config.JWT_ACCESS_COOKIE_NAME)
     return {"message": "You are logged out"}
 
+
 @rout.post("/reset_password", dependencies=[Depends(security.access_token_required)])
-def reset_password(user: UserResetPassword, db: Session = Depends(get_db), token: TokenPayload = Depends(security.access_token_required)):
+def reset_password(
+    user: UserResetPassword,
+    db: Session = Depends(get_db),
+    token: TokenPayload = Depends(security.access_token_required),
+):
     """
     pass
     """
     return AuthInterface.reset_password(db, int(token.sub), user)
 
-@rout.get("/me", dependencies=[Depends(security.access_token_required)], response_model=UserRead)
-def get_me(db: Session = Depends(get_db), token: TokenPayload = Depends(security.access_token_required)):
+
+@rout.get(
+    "/me",
+    dependencies=[Depends(security.access_token_required)],
+    response_model=UserRead,
+)
+def get_me(
+    db: Session = Depends(get_db),
+    token: TokenPayload = Depends(security.access_token_required),
+):
     """
     Getting information about the current user using a JWT token
     """
-    return UserInterface.get_user_by_id(db,token.sub)
-
+    return UserInterface.get_user_by_id(db, token.sub)

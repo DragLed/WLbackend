@@ -1,6 +1,4 @@
-from datetime import datetime
 from pydantic import BaseModel
-
 
 
 class GiftBase(BaseModel):
@@ -9,8 +7,10 @@ class GiftBase(BaseModel):
     price: int
     photo: str | None
 
+
 class GiftCreate(GiftBase):
     wishlist_id: int
+
 
 class GiftResponse(BaseModel):
     id: int
@@ -20,7 +20,6 @@ class GiftResponse(BaseModel):
     photo: str | None
     is_reserved: bool
     wishlist_id: int
-    
 
     class Config:
         from_attributes = True
