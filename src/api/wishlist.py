@@ -18,8 +18,13 @@ class WishlistInterface:
         if not wishlist:
             raise WishlistNotFound()
 
-        if wishlist.owner_id != user_id and wishlist.visibility != "public":
-            raise WishlistForbidden()
+        if wishlist.owner_id == user_id:
+            return
+
+        if wishlist.visibility == WishlistVisibility.public:
+            return
+
+        raise WishlistForbidden()
 
     @staticmethod
     def create_wishlist(
@@ -51,9 +56,7 @@ class WishlistInterface:
     @staticmethod
     def get_all_user_wishlist(db: Session, userId: int):
         wishlists = db.query(Wishlist).filter(Wishlist.owner_id == userId).all()
-        if len(wishlists) > 0:
-            return wishlists
-        return
+        return wishlists
 
     @staticmethod
     def get_wishlist(db: Session, wishlist_id: int, owner_id: int):
@@ -64,5 +67,15 @@ class WishlistInterface:
     @staticmethod
     def delete_wishlist(db: Session, wlid: int, owner_id: int):
         wishlist = db.query(Wishlist).filter(Wishlist.id == wlid).first()
-        WishlistInterface._check_access(wishlist, owner_id)
-        return wishlist
+
+        # 1. Проверка существования
+        if not wishlist:
+            raise WishlistNotFound()
+
+        # 2. Проверка владельца
+        if wishlist.owner_id != owner_id:
+            raise WishlistForbidden()
+
+        db.delete(wishlist)
+        db.commit()
+        return {"message": "wishlist deleted"}

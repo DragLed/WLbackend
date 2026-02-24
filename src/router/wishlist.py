@@ -52,4 +52,10 @@ def delete_wishlist(
     db: Session = Depends(get_db),
     token: TokenPayload = Depends(security.access_token_required),
 ):
-    return WishlistInterface.delete_wishlist(db, id, int(token.sub))
+    try:
+        return WishlistInterface.delete_wishlist(db, id, int(token.sub))
+    except WishlistNotFound:
+        raise HTTPException(status_code=404, detail="Wishlist not found")
+
+    except WishlistForbidden:
+        raise HTTPException(status_code=403, detail="Access denied")
