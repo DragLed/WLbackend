@@ -35,7 +35,7 @@ def get_my_wishlists(
         raise HTTPException(status_code=404, detail="Wishlist not found")
 
 
-@rout.get("/{id}")
+@rout.get("/{id}", response_model=WishlistRespone)
 def get_wishlist(
     id: int,
     db: Session = Depends(get_db),

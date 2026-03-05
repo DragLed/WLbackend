@@ -1,7 +1,15 @@
+from pathlib import Path
+import sys
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from authx.exceptions import AuthXException
+
+SRC_DIR = Path(__file__).resolve().parent
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
 from router import users, gifts, auth, Dev, wishlist
 import uvicorn
 import models

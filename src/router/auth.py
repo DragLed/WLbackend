@@ -10,7 +10,7 @@ from database.database import get_db
 rout = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@rout.post("/", response_model=UserRead)
+@rout.post("/register/", response_model=UserRead)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     """
     Creating a user
@@ -35,7 +35,7 @@ def login(user: UserCreate, response: Response, db: Session = Depends(get_db)):
     return {"message": "Successfully logged in"}
 
 
-@rout.post("/logout", dependencies=[Depends(security.access_token_required)])
+@rout.patch("/logout", dependencies=[Depends(security.access_token_required)])
 def logout(response: Response):
     """
     User logout and removal of JWT token from cookies
@@ -44,7 +44,7 @@ def logout(response: Response):
     return {"message": "You are logged out"}
 
 
-@rout.post("/reset_password", dependencies=[Depends(security.access_token_required)])
+@rout.post("/password", dependencies=[Depends(security.access_token_required)])
 def reset_password(
     user: UserResetPassword,
     db: Session = Depends(get_db),
