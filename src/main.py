@@ -42,7 +42,7 @@ app.include_router(Dev.rout)
 app.include_router(auth.rout)
 app.include_router(users.rout)
 app.include_router(wishlist.rout)
-app.include_router(gifts.rout)
+# app.include_router(gifts.rout)
 
 
 @app.exception_handler(AuthXException)
