@@ -1,4 +1,4 @@
-from fastapi import HTTPException, Response, Depends, APIRouter
+from fastapi import HTTPException, Response, Depends, APIRouter, Query
 from authx.schema import TokenPayload
 from api.users import UserInterface
 from api.wishlist import WishlistInterface
@@ -19,11 +19,23 @@ def get_all_users(db: Session = Depends(get_db)):
 
 
 @rout.get("/{Id}", response_model=UserRead)
-def get_user(Id: str, db: Session = Depends(get_db)):
+def get_user_by_id(Id: str, db: Session = Depends(get_db)):
     """
     Getting information about a user by ID
     """
     return UserInterface.get_user_by_id(db, Id)
+
+
+@rout.get("/search/{username}", response_model=list[UserRead])
+def get_users_by_username(
+    q: str = Query(..., min_length=2),
+    db: Session = Depends(get_db),
+    token: TokenPayload = Depends(security.access_token_required),
+):
+    """
+    Getting information about users by username
+    """
+    return UserInterface.get_users_by_username(db, q, int(token.sub))
 
 
 @rout.delete("/{Id}", dependencies=[Depends(security.access_token_required)])

@@ -19,6 +19,19 @@ class UserInterface:
         raise HTTPException(status_code=404, detail="No user found")
 
     @staticmethod
+    def get_users_by_username(db: Session, username: str, id: int):
+        users = (
+            db.query(User)
+            .filter(User.username.ilike(f"{username}%"))
+            .filter(User.id != id)
+            .order_by(User.username)
+            .all()
+        )
+        if users:
+            return users
+        raise HTTPException(status_code=404, detail="No users found")
+
+    @staticmethod
     def delete_user(db: Session, id: str):
         user = db.query(User).filter(User.id == id).first()
         if user:

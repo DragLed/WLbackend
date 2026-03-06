@@ -1,7 +1,7 @@
 from fastapi import Depends, APIRouter, HTTPException
 from authx.schema import TokenPayload
 from config.cookie import security
-from schemas.wishlists import WishlistBase, WishlistRespone
+from schemas.wishlists import WishlistBase, WishlistRespone, EditWishlist
 from sqlalchemy.orm import Session
 from database.database import get_db
 from api.wishlist import WishlistInterface, WishlistForbidden, WishlistNotFound
@@ -33,6 +33,16 @@ def get_my_wishlists(
 
     except WishlistNotFound:
         raise HTTPException(status_code=404, detail="Wishlist not found")
+
+
+@rout.get("/WishlistVisibility")
+def get_WishlistVisibility():
+    return {"tags": ["public", "link_only", "private"]}
+
+
+@rout.get("/WishlistRole")
+def get_WishlistRole():
+    return {"tags": ["viewer", "editor"]}
 
 
 @rout.get("/{id}", response_model=WishlistRespone)
@@ -104,3 +114,18 @@ def get_access_wishlist(
     db: Session = Depends(get_db),
 ):
     return WishlistInterface.get_all_access(db, user_id)
+
+
+@rout.put("/{id}")
+def edit_wishlist(
+    id: int,
+    wl: EditWishlist,
+    db: Session = Depends(get_db),
+    token: TokenPayload = Depends(security.access_token_required),
+):
+    try:
+        return WishlistInterface.edit_wishlist(db, wl, id, int(token.sub))
+    except WishlistNotFound:
+        raise HTTPException(status_code=404, detail="Wishlist not found")
+    except WishlistForbidden:
+        raise HTTPException(status_code=403, detail="Access denied")

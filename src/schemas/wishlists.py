@@ -18,3 +18,9 @@ class WishlistRespone(BaseModel):
     owner_id: int
     share_token: str | None
     created_at: datetime
+
+
+class EditWishlist(BaseModel):
+    title: str
+    description: str
+    visibility: WishlistVisibility
