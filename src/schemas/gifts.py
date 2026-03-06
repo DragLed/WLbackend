@@ -9,7 +9,7 @@ class GiftBase(BaseModel):
 
 
 class GiftCreate(GiftBase):
-    wishlist_id: int
+    pass
 
 
 class GiftResponse(BaseModel):
@@ -19,7 +19,13 @@ class GiftResponse(BaseModel):
     price: int
     photo: str | None
     is_reserved: bool
-    wishlist_id: int
 
     class Config:
         from_attributes = True
+
+
+class GiftResponeWithWishlist(GiftResponse):
+    wishlist_id: int
+
+class EditGift(GiftBase):
+    pass

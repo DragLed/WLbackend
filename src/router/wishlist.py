@@ -5,6 +5,8 @@ from schemas.wishlists import WishlistBase, WishlistRespone, EditWishlist
 from sqlalchemy.orm import Session
 from database.database import get_db
 from api.wishlist import WishlistInterface, WishlistForbidden, WishlistNotFound
+from api.gifts import GiftInterface
+from schemas.gifts import GiftCreate
 from core.enums import WishlistVisibility, WishlistRole
 
 rout = APIRouter(prefix="/wishlist", tags=["Wishlist"])
@@ -129,3 +131,27 @@ def edit_wishlist(
         raise HTTPException(status_code=404, detail="Wishlist not found")
     except WishlistForbidden:
         raise HTTPException(status_code=403, detail="Access denied")
+
+
+@rout.post("/{wlid}/gifts", dependencies=[Depends(security.access_token_required)])
+def create_gift(
+    wlid: int,
+    gift: GiftCreate,
+    db: Session = Depends(get_db),
+    token: TokenPayload = Depends(security.access_token_required),
+):
+    """
+    Create a gift.
+    """
+    return GiftInterface.create_gift(db, gift, int(token.sub), wlid)
+
+@rout.get("/{wlid}/gifts", dependencies=[Depends(security.access_token_required)])
+def get_all_gifts_by_wishlist(
+    wlid: int,
+    db: Session = Depends(get_db),
+    token: TokenPayload = Depends(security.access_token_required),
+):
+    """
+    Get all gifts by wishlist.
+    """
+    return GiftInterface.get_all_gifts_by_wishlist(db, wlid, int(token.sub))
