@@ -1,59 +1,61 @@
-﻿# WLbackend
+# WLbackend
 
-Backend API for a wishlist application, built with FastAPI, SQLAlchemy, and JWT (cookie-based auth).
+FastAPI backend for a shared wishlist application.
 
-## Features
-- User registration and login.
-- Authentication via JWT stored in HttpOnly cookie (`my_access_token`).
-- CRUD for wishlists.
-- CRUD for gifts inside wishlists.
-- Basic developer endpoints (`/dev/*`) for health and stats.
-- Swagger and ReDoc documentation out of the box.
+It supports:
+- user registration and login
+- cookie-based JWT authentication
+- wishlist management with visibility rules
+- per-user access roles for shared wishlists (`viewer` / `editor`)
+- gift management inside wishlists
 
 ## Tech Stack
-- Python 3.12 (recommended)
+- Python 3.11+
 - FastAPI
-- SQLAlchemy
-- PostgreSQL (`psycopg2`)
-- AuthX (JWT)
+- SQLAlchemy 2
+- PostgreSQL
 - Alembic
+- AuthX (JWT in cookies)
 
-## Project Structure
+## Project Layout
 ```text
 WLbackend/
-  src/
-    main.py
-    api/
-    config/
-    core/
-    database/
-    models/
-    router/
-    schemas/
-    alembic/
-    alembic.ini
-  requirements.txt
-  dockerfile
-  credentials.json
+|-- src/
+|   |-- api/          # business logic
+|   |-- router/       # HTTP endpoints
+|   |-- models/       # SQLAlchemy models
+|   |-- schemas/      # Pydantic schemas
+|   |-- database/     # DB engine/session setup
+|   |-- config/       # auth and security config
+|   |-- core/         # enums and shared constants
+|   |-- alembic/      # migrations
+|   |-- alembic.ini
+|   `-- main.py       # app entry point
+|-- requirements.txt
+`-- credentials.json
 ```
 
 ## Configuration
-The app reads settings from `credentials.json` in the project root.
+The app reads config from `credentials.json` in the project root.
 
-Required keys:
+Example:
 ```json
 {
   "db_connections": "postgresql+psycopg2://USER:PASSWORD@HOST:5432/DB_NAME",
-  "JWT_SECRET_KEY": "your_secret_key",
-  "schemes": "your scheme"
+  "JWT_SECRET_KEY": "replace_with_strong_secret",
+  "schemes": "argon2"
 }
 ```
 
-## Local Run
+- `db_connections`: SQLAlchemy database URL
+- `JWT_SECRET_KEY`: secret used to sign JWT tokens
+- `schemes`: passlib hashing scheme (for example `argon2` or `bcrypt`)
+
+## Local Setup
 1. Create and activate a virtual environment:
 ```bash
 python -m venv .venv
-.venv\\Scripts\\activate
+.venv\Scripts\activate
 ```
 
 2. Install dependencies:
@@ -61,77 +63,84 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-3. Apply migrations:
+3. Run migrations:
 ```bash
 cd src
 alembic -c alembic.ini upgrade head
-cd ..
 ```
 
-4. Start API:
+4. Start the API:
 ```bash
-cd src
 uvicorn main:app --reload
 ```
 
-API will be available at `http://127.0.0.1:8000`.
+API base URL: `http://127.0.0.1:8000`
 
-## Docker
-Build image:
-```bash
-docker build -t wlbackend -f dockerfile .
-```
-
-Run container:
-```bash
-docker run --rm -p 8000:8000 wlbackend
-```
-
-## API Docs
+## API Documentation
 - Swagger UI: `http://127.0.0.1:8000/docs`
 - ReDoc: `http://127.0.0.1:8000/redoc`
 
-## Auth Flow
-1. Register user via `POST /auth/`.
-2. Login via `POST /auth/login`.
-3. After login, server sets HttpOnly cookie `my_access_token`.
-4. Use protected endpoints with this cookie attached.
+## Authentication Flow
+1. Register: `POST /auth/register/`
+2. Login: `POST /auth/login`
+3. Server sets HttpOnly cookie: `my_access_token`
+4. Call protected routes with that cookie
+5. Logout: `PATCH /auth/logout`
 
-## Main Endpoints
+## Access Model
+Wishlist visibility values:
+- `public`
+- `link_only`
+- `private`
+
+Access roles for shared wishlists:
+- `viewer`
+- `editor`
+
+Owners always have full access to their own wishlists.
+
+## Endpoints Overview
 
 ### Auth
-- `POST /auth/` - register user
+- `POST /auth/register/` - register user
 - `POST /auth/login` - login and set auth cookie
-- `POST /auth/logout` - clear auth cookie (protected)
-- `POST /auth/reset_password` - change password (protected)
-- `GET /auth/me` - get current user (protected)
+- `PATCH /auth/logout` - logout and clear auth cookie (auth required)
+- `POST /auth/password` - change password (auth required)
+- `GET /auth/me` - current user profile (auth required)
 
 ### Users
 - `GET /users/` - list users
-- `GET /users/{Id}` - get user by id
-- `DELETE /users/{Id}` - delete own user and clear cookie (protected)
-- `GET /users/{userId}/wishlist` - get user wishlists (protected)
+- `GET /users/{Id}` - user by id
+- `GET /users/search/{username}?q=<prefix>` - search users by username prefix (auth required)
+- `DELETE /users/{Id}` - delete own account (auth required)
+- `GET /users/{userId}/wishlist` - wishlists by user id (auth required)
 
 ### Wishlist
-- `POST /wishlist/` - create wishlist (protected)
-- `GET /wishlist/` - get current user wishlists (protected)
-- `GET /wishlist/{id}` - get wishlist by id (protected)
-- `DELETE /wishlist/{id}` - delete wishlist (protected)
+- `POST /wishlist/?visibility=<public|link_only|private>` - create wishlist (auth required)
+- `GET /wishlist/` - current user wishlists (auth required)
+- `GET /wishlist/{id}` - wishlist by id (auth required)
+- `PUT /wishlist/{id}` - edit wishlist (auth required)
+- `DELETE /wishlist/{id}` - delete wishlist (auth required)
+- `POST /wishlist/access/{id}?user_id=<id>&role=<viewer|editor>` - grant/update access (auth required)
+- `DELETE /wishlist/access/{id}?user_id=<id>` - revoke access (auth required)
+- `GET /wishlist/access/{user_id}` - list access records for user
+- `GET /wishlist/WishlistVisibility` - available visibility values
+- `GET /wishlist/WishlistRole` - available role values
 
 ### Gifts
-- `POST /gifts/` - create gift (protected)
-- `GET /gifts/{gift_id}` - get gift by id (protected)
-- `DELETE /gifts/{giftId}` - delete gift (protected)
-- `GET /gifts/{wishlist_id}/wishlist` - list gifts in wishlist (protected)
+- `POST /wishlist/{wlid}/gifts` - create gift in wishlist (auth required)
+- `GET /wishlist/{wlid}/gifts` - list gifts in wishlist (auth required)
+- `GET /gifts/{gift_id}` - gift details (auth required)
+- `PUT /gifts/{gift_id}` - edit gift fields (auth required)
+- `DELETE /gifts/{gift_id}` - delete gift (auth required)
 
 ### Dev
-- `GET /dev/health` - DB health check (protected)
-- `GET /dev/stats` - users/gifts stats (protected)
-- `GET /dev/wishlist` - all wishlists (protected)
+- `GET /dev/health` - DB health check (auth required)
+- `GET /dev/stats` - service stats (auth required)
+- `GET /dev/wishlist` - list all wishlists (auth required)
 
-## Notes
-- CORS is preconfigured for:
-  - `http://localhost:5173`
-  - `http://127.0.0.1:5173`
-  - `https://dragledwl.ru`
-- Entry point for local development is `src/main.py`.
+## CORS
+Allowed origins are configured in `src/main.py`:
+- `http://localhost:5173`
+- `http://127.0.0.1:5173`
+- `https://dragledwl.ru`
