@@ -3,29 +3,32 @@ from pydantic import BaseModel
 
 class GiftBase(BaseModel):
     title: str
-    description: str | None
-    price: int
-    photo: str | None
+    description: str | None = None
+    price: float | None = None
+    photo: str | None = None
 
 
 class GiftCreate(GiftBase):
     pass
 
 
-class GiftResponse(BaseModel):
+class GiftResponseBase(BaseModel):
     id: int
-    title: str
-    description: str | None
-    price: int
-    photo: str | None
+
+
+class GiftResponse(GiftResponseBase, GiftBase):
     is_reserved: bool
 
     class Config:
         from_attributes = True
 
 
-class GiftResponeWithWishlist(GiftResponse):
+class GiftResponseWithWishlist(GiftResponse):
     wishlist_id: int
 
-class EditGift(GiftBase):
-    pass
+
+class EditGift(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    price: float | None = None
+    photo: str | None = None

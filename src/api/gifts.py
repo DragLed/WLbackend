@@ -1,10 +1,11 @@
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from models.gifts import Gift
 from models.wishlist import Wishlist
-from schemas.gifts import GiftCreate
+from schemas.gifts import GiftCreate, EditGift
 from api.wishlist import WishlistInterface
 
+class GiftNotFound(Exception):
+    pass
 
 class GiftInterface:
     @staticmethod
@@ -13,13 +14,7 @@ class GiftInterface:
         role = WishlistInterface._check_access(db, wishlist, owner_id)
         WishlistInterface._require_role(role, ["owner", "editor"])
 
-        new_gift = Gift(
-            title=gift_data.title,
-            description=gift_data.description,
-            price=gift_data.price,
-            photo=gift_data.photo,
-            wishlist_id=wlid
-        )
+        new_gift = Gift(**gift_data.dict(), wishlist_id=wlid)
         db.add(new_gift)
         db.commit()
         db.refresh(new_gift)
@@ -36,9 +31,44 @@ class GiftInterface:
     def get_gift(db: Session, gift_id: int, owner_id: int):
         gift = db.query(Gift).filter(Gift.id == gift_id).first()
         if not gift:
-            raise HTTPException(status_code=404, detail="Gift not found")
+            raise GiftNotFound()
 
         wishlist = db.query(Wishlist).filter(Wishlist.id == gift.wishlist_id).first()
         role = WishlistInterface._check_access(db, wishlist, owner_id)
         WishlistInterface._require_role(role, ["owner", "editor", "viewer"])
         return gift
+    
+
+    @staticmethod
+    def delete_gift(db: Session, gift_id: int, owner_id: int):
+        gift = db.query(Gift).filter(Gift.id == gift_id).first()
+        if not gift:
+            raise GiftNotFound()
+        wishlist = db.query(Wishlist).filter(Wishlist.id == gift.wishlist_id).first()
+        role = WishlistInterface._check_access(db, wishlist, owner_id)
+        WishlistInterface._require_role(role, ["owner", "editor"])
+        db.delete(gift)
+        db.commit()
+        return {"message": "gift is removed"}
+    
+    @staticmethod
+    def edit_gift(db: Session, gift_data: EditGift, gift_id: int, user_id: int):
+
+        gift = db.query(Gift).filter(Gift.id == gift_id).first()
+
+        if not gift:
+            raise GiftNotFound()
+
+        wishlist = db.query(Wishlist).filter(Wishlist.id == gift.wishlist_id).first()
+
+        role = WishlistInterface._check_access(db, wishlist, user_id)
+        WishlistInterface._require_role(role, ["owner", "editor"])
+
+        for key, value in gift_data.model_dump(exclude_unset=True).items():
+            setattr(gift, key, value)
+
+        db.commit()
+        db.refresh(gift)
+
+        return gift
+
